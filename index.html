@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Blog</title>
+  <link rel="stylesheet" href="styles/styles.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Mini Blog</h1>
+    <nav>
+      <button id="btn-home">Inicio</button>
+      <button id="btn-create">Crear Post</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- Vista: Home / listado de posts -->
+    <section id="view-home">
+
+      <!-- Búsqueda -->
+      <div id="search-area">
+        <input type="text" id="search-input" placeholder="Buscar posts..." />
+        <button id="btn-search">Buscar</button>
+      </div>
+
+      <!-- UI States -->
+      <div id="state-idle" class="ui-state">
+        <p>Bienvenido al Mini Blog.</p>
+      </div>
+
+      <div id="state-loading" class="ui-state hidden">
+        <p>Cargando...</p>
+      </div>
+
+      <div id="state-empty" class="ui-state hidden">
+        <p>No se encontraron posts.</p>
+      </div>
+
+      <div id="state-error" class="ui-state hidden">
+        <p>Ocurrió un error al cargar los posts.</p>
+        <button id="btn-retry">Reintentar</button>
+      </div>
+
+      <div id="state-success" class="ui-state hidden">
+        <div id="posts-list">
+          <!-- Las cards se generan dinámicamente con JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Vista: Formulario de crear post -->
+    <section id="view-create" class="hidden">
+      <h2>Crear nuevo post</h2>
+
+      <div id="form-idle" class="ui-state">
+        <div id="create-form">
+          <div class="field">
+            <label for="post-title">Título</label>
+            <input type="text" id="post-title" placeholder="Título del post" />
+          </div>
+          <div class="field">
+            <label for="post-body">Contenido</label>
+            <textarea id="post-body" rows="5" placeholder="Escribe el contenido..."></textarea>
+          </div>
+          <div class="field">
+            <label for="post-tags">Tags (separados por coma)</label>
+            <input type="text" id="post-tags" placeholder="ej: tech, web, js" />
+          </div>
+          <button id="btn-submit">Publicar</button>
+        </div>
+      </div>
+
+      <div id="form-loading" class="ui-state hidden">
+        <p>Publicando post...</p>
+      </div>
+
+      <div id="form-success" class="ui-state hidden">
+        <p>¡Post creado exitosamente!</p>
+        <button id="btn-back">Volver al inicio</button>
+      </div>
+
+      <div id="form-error" class="ui-state hidden">
+        <p>Error al crear el post.</p>
+        <button id="btn-form-retry">Reintentar</button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="scripts/app.js"></script>
+</body>
+</html>
