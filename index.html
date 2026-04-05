@@ -49,8 +49,33 @@
         <div id="posts-list">
           <!-- Las cards se generan dinámicamente con JS -->
         </div>
+        <nav id="pagination" class="hidden" aria-label="Paginación"></nav>
       </div>
 
+    </section>
+
+    <!-- Vista: detalle de publicación (producto) -->
+    <section id="view-detail" class="hidden">
+      <div id="detail-loading" class="ui-state">
+        <p>Cargando publicación...</p>
+      </div>
+      <div id="detail-error" class="ui-state hidden">
+        <p>No se pudo cargar la publicación.</p>
+        <button type="button" id="detail-error-back">Volver al inicio</button>
+      </div>
+      <div id="detail-content" class="detail-container hidden">
+        <button type="button" class="detail-back" id="detail-back">← Volver al listado</button>
+        <p class="detail-tags" id="detail-tags"></p>
+        <h2 class="detail-title" id="detail-title"></h2>
+        <p class="detail-meta" id="detail-meta"></p>
+        <p class="detail-body" id="detail-body"></p>
+        <div class="detail-actions">
+          <button type="button" id="btn-delete" class="btn-danger">Eliminar publicación</button>
+        </div>
+        <p class="delete-hint">
+          La API de demostración puede no guardar el borrado en el servidor; aquí se quita del listado al confirmar la acción.
+        </p>
+      </div>
     </section>
 
     <!-- Vista: Formulario de crear post -->
@@ -92,6 +117,8 @@
     </section>
 
   </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
 
   <script src="scripts/app.js"></script>
 </body>

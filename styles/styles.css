@@ -135,6 +135,7 @@ button.btn-primary:hover,
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  text-align: left;
 }
 
 .post-card:hover {
@@ -326,6 +327,34 @@ button.btn-primary:hover,
   flex-wrap: wrap;
   gap: 0.3rem;
   margin-bottom: 0.75rem;
+}
+
+.detail-actions {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.btn-danger {
+  background: #c0392b;
+  color: #fff;
+  border-color: #a93226;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #a93226;
+}
+
+.btn-danger:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.delete-hint {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 1rem;
+  line-height: 1.5;
 }
 
 /* ── Responsive ── */
