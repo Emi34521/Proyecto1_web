@@ -36,6 +36,10 @@
   var inputTitle = document.getElementById('post-title');
   var inputBody  = document.getElementById('post-body');
   var inputTags  = document.getElementById('post-tags');
+  var formIdle    = document.getElementById('form-idle');
+  var formLoading = document.getElementById('form-loading');
+  var formSuccess = document.getElementById('form-success');
+  var formError   = document.getElementById('form-error');
 
   function mostrarToast(texto) {
     if (!toastEl) return;
@@ -321,8 +325,75 @@
 
   return valido;
 }
-document.getElementById('btn-submit').addEventListener('click', function () {
-  validarFormulario();
+function setFormState(modo) {
+  formIdle.classList.add('hidden');
+  formLoading.classList.add('hidden');
+  formSuccess.classList.add('hidden');
+  formError.classList.add('hidden');
+  if (modo === 'idle')    formIdle.classList.remove('hidden');
+  if (modo === 'loading') formLoading.classList.remove('hidden');
+  if (modo === 'success') formSuccess.classList.remove('hidden');
+  if (modo === 'error')   formError.classList.remove('hidden');
+}
+
+function enviarPost() {
+  if (!validarFormulario()) return;
+
+  var titulo    = inputTitle.value.trim();
+  var contenido = inputBody.value.trim();
+  var tags      = inputTags.value.trim();
+
+  setFormState('loading');
+
+  fetch('https://fakestoreapi.com/products', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title:       titulo,
+      description: contenido,
+      price:       0,
+      image:       'https://fakestoreapi.com/img/placeholder.jpg',
+      category:    tags !== '' ? tags.split(',')[0].trim() : 'general'
+    })
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error('error');
+      return res.json();
+    })
+    .then(function (data) {
+      productos.unshift({
+        id:          data.id || Date.now(),
+        title:       titulo,
+        description: contenido,
+        price:       0,
+        category:    tags !== '' ? tags.split(',')[0].trim() : 'general',
+        image:       '',
+        rating:      { rate: 0, count: 0 }
+      });
+      inputTitle.value = '';
+      inputBody.value  = '';
+      inputTags.value  = '';
+      setFormState('success');
+      mostrarToast('¡Post creado y agregado al listado!');
+    })
+    .catch(function () {
+      setFormState('error');
+    });
+}
+document.getElementById('btn-submit').addEventListener('click', enviarPost);
+document.getElementById('btn-back').addEventListener('click', function () {
+  setFormState('idle');
+  showView('home');
+  if (productos.length > 0) {
+    paginaActual = 1;
+    setHomeStates('success');
+    pintarLista();
+    pintarPaginacion();
+  }
+});
+
+document.getElementById('btn-form-retry').addEventListener('click', function () {
+  setFormState('idle');
 });
 
   function loadProducts() {
