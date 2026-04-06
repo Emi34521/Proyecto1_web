@@ -32,6 +32,10 @@
   var btnDelete = document.getElementById('btn-delete');
 
   var toastEl = document.getElementById('toast');
+  
+  var inputTitle = document.getElementById('post-title');
+  var inputBody  = document.getElementById('post-body');
+  var inputTags  = document.getElementById('post-tags');
 
   function mostrarToast(texto) {
     if (!toastEl) return;
@@ -274,6 +278,52 @@
         btnDelete.textContent = 'Eliminar publicación';
       });
   }
+
+  function validarFormulario() {
+  var valido = true;
+
+  var campos = document.querySelectorAll('#create-form .field');
+  for (var i = 0; i < campos.length; i++) {
+    campos[i].classList.remove('error');
+    var msgAnterior = campos[i].querySelector('.field-error-msg');
+    if (msgAnterior) msgAnterior.remove();
+  }
+
+  function marcarError(input, mensaje) {
+    var field = input.closest('.field');
+    field.classList.add('error');
+    var msg = document.createElement('span');
+    msg.className = 'field-error-msg';
+    msg.textContent = mensaje;
+    field.appendChild(msg);
+    valido = false;
+  }
+
+  var titulo    = inputTitle.value.trim();
+  var contenido = inputBody.value.trim();
+  var tags      = inputTags.value.trim();
+
+  if (titulo === '') {
+    marcarError(inputTitle, 'El título es obligatorio.');
+  } else if (titulo.length < 5) {
+    marcarError(inputTitle, 'El título debe tener al menos 5 caracteres.');
+  }
+
+  if (contenido === '') {
+    marcarError(inputBody, 'El contenido es obligatorio.');
+  } else if (contenido.length < 20) {
+    marcarError(inputBody, 'El contenido debe tener al menos 20 caracteres.');
+  }
+
+  if (tags !== '' && tags.length < 2) {
+    marcarError(inputTags, 'Si escribes tags deben tener al menos 2 caracteres.');
+  }
+
+  return valido;
+}
+document.getElementById('btn-submit').addEventListener('click', function () {
+  validarFormulario();
+});
 
   function loadProducts() {
     setHomeStates('loading');
