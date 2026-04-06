@@ -45,6 +45,10 @@
   var editBody    = document.getElementById('edit-body');
   var editTags    = document.getElementById('edit-tags');
   var viewEdit    = document.getElementById('view-edit');
+  var editFormIdle    = document.getElementById('edit-form-idle');
+  var editFormLoading = document.getElementById('edit-form-loading');
+  var editFormSuccess = document.getElementById('edit-form-success');
+  var editFormError   = document.getElementById('edit-form-error');
 
   function mostrarToast(texto) {
     if (!toastEl) return;
@@ -411,6 +415,85 @@ function abrirEditar() {
   showView('edit');
 }
 btnEdit.addEventListener('click', abrirEditar);
+function setEditFormState(modo) {
+  editFormIdle.classList.add('hidden');
+  editFormLoading.classList.add('hidden');
+  editFormSuccess.classList.add('hidden');
+  editFormError.classList.add('hidden');
+  if (modo === 'idle')    editFormIdle.classList.remove('hidden');
+  if (modo === 'loading') editFormLoading.classList.remove('hidden');
+  if (modo === 'success') editFormSuccess.classList.remove('hidden');
+  if (modo === 'error')   editFormError.classList.remove('hidden');
+}
+
+function guardarEdicion() {
+  var titulo    = editTitle.value.trim();
+  var contenido = editBody.value.trim();
+  var categoria = editTags.value.trim();
+
+  if (titulo.length < 5) {
+    alert('El título debe tener al menos 5 caracteres.');
+    return;
+  }
+  if (contenido.length < 20) {
+    alert('El contenido debe tener al menos 20 caracteres.');
+    return;
+  }
+
+  setEditFormState('loading');
+
+  fetch('https://fakestoreapi.com/products/' + idViendo, {
+    method:  'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title:       titulo,
+      description: contenido,
+      category:    categoria !== '' ? categoria : 'general',
+      price:       0,
+      image:       ''
+    })
+  })
+    .then(function (res) {
+      if (!res.ok) throw new Error('error');
+      return res.json();
+    })
+    .then(function () {
+      for (var i = 0; i < productos.length; i++) {
+        if (productos[i].id === idViendo) {
+          productos[i].title       = titulo;
+          productos[i].description = contenido;
+          productos[i].category    = categoria !== '' ? categoria : 'general';
+          break;
+        }
+      }
+      setEditFormState('success');
+      mostrarToast('¡Publicación actualizada!');
+    })
+    .catch(function () {
+      setEditFormState('error');
+    });
+}
+document.getElementById('btn-edit-submit').addEventListener('click', guardarEdicion);
+
+document.getElementById('btn-edit-cancel').addEventListener('click', function () {
+  setEditFormState('idle');
+  showView('detail');
+});
+
+document.getElementById('btn-edit-back').addEventListener('click', function () {
+  setEditFormState('idle');
+  showView('home');
+  if (productos.length > 0) {
+    paginaActual = 1;
+    setHomeStates('success');
+    pintarLista();
+    pintarPaginacion();
+  }
+});
+
+document.getElementById('btn-edit-retry').addEventListener('click', function () {
+  setEditFormState('idle');
+});
 
   function loadProducts() {
     setHomeStates('loading');
