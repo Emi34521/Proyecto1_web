@@ -115,6 +115,45 @@
       </div>
 
     </section>
+    <!-- Vista: Editar publicación -->
+<section id="view-edit" class="hidden">
+  <h2>Editar publicación</h2>
+
+  <div id="edit-form-idle" class="ui-state">
+    <div id="edit-form">
+      <div class="field">
+        <label for="edit-title">Título</label>
+        <input type="text" id="edit-title" placeholder="Título del post" />
+      </div>
+      <div class="field">
+        <label for="edit-body">Contenido</label>
+        <textarea id="edit-body" rows="5" placeholder="Escribe el contenido..."></textarea>
+      </div>
+      <div class="field">
+        <label for="edit-tags">Categoría</label>
+        <input type="text" id="edit-tags" placeholder="ej: electronics" />
+      </div>
+      <div class="edit-actions">
+        <button id="btn-edit-submit">Guardar cambios</button>
+        <button id="btn-edit-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-form-loading" class="ui-state hidden">
+    <p>Guardando cambios...</p>
+  </div>
+
+  <div id="edit-form-success" class="ui-state hidden">
+    <p>¡Publicación actualizada correctamente!</p>
+    <button id="btn-edit-back">Volver al inicio</button>
+  </div>
+
+  <div id="edit-form-error" class="ui-state hidden">
+    <p>Error al guardar los cambios.</p>
+    <button id="btn-edit-retry">Reintentar</button>
+  </div>
+</section>
 
   </main>
 
