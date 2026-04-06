@@ -40,6 +40,11 @@
   var formLoading = document.getElementById('form-loading');
   var formSuccess = document.getElementById('form-success');
   var formError   = document.getElementById('form-error');
+  var btnEdit     = document.getElementById('btn-edit');
+  var editTitle   = document.getElementById('edit-title');
+  var editBody    = document.getElementById('edit-body');
+  var editTags    = document.getElementById('edit-tags');
+  var viewEdit    = document.getElementById('view-edit');
 
   function mostrarToast(texto) {
     if (!toastEl) return;
@@ -50,21 +55,18 @@
     }, 3000);
   }
 
-  function showView(nombre) {
-    if (nombre === 'home') {
-      viewHome.classList.remove('hidden');
-      viewCreate.classList.add('hidden');
-      viewDetail.classList.add('hidden');
-    } else if (nombre === 'create') {
-      viewHome.classList.add('hidden');
-      viewCreate.classList.remove('hidden');
-      viewDetail.classList.add('hidden');
-    } else if (nombre === 'detail') {
-      viewHome.classList.add('hidden');
-      viewCreate.classList.add('hidden');
-      viewDetail.classList.remove('hidden');
-    }
-  }
+function showView(nombre) {
+  viewHome.classList.add('hidden');
+  viewCreate.classList.add('hidden');
+  viewDetail.classList.add('hidden');
+  viewEdit.classList.add('hidden');
+
+  if (nombre === 'home')   viewHome.classList.remove('hidden');
+  if (nombre === 'create') viewCreate.classList.remove('hidden');
+  if (nombre === 'detail') viewDetail.classList.remove('hidden');
+  if (nombre === 'edit')   viewEdit.classList.remove('hidden');
+}
+
 
   function setHomeStates(modo) {
     stateIdle.classList.add('hidden');
@@ -395,6 +397,20 @@ document.getElementById('btn-back').addEventListener('click', function () {
 document.getElementById('btn-form-retry').addEventListener('click', function () {
   setFormState('idle');
 });
+function abrirEditar() {
+  var p = null;
+  for (var i = 0; i < productos.length; i++) {
+    if (productos[i].id === idViendo) { p = productos[i]; break; }
+  }
+  if (!p) return;
+
+  editTitle.value = p.title;
+  editBody.value  = p.description;
+  editTags.value  = p.category;
+
+  showView('edit');
+}
+btnEdit.addEventListener('click', abrirEditar);
 
   function loadProducts() {
     setHomeStates('loading');
