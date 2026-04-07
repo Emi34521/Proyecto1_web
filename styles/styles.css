@@ -296,6 +296,13 @@ button.btn-primary:hover,
   border-color: #888;
 }
 
+/* Contenido al editar: crece con el texto (sin barra interna) */
+#edit-body {
+  resize: none;
+  overflow-y: hidden;
+  min-height: 7.5rem;
+}
+
 .field.error input,
 .field.error textarea {
   border-color: #c0392b;

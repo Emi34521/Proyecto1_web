@@ -53,6 +53,11 @@
   var editFormSuccess = document.getElementById('edit-form-success');
   var editFormError   = document.getElementById('edit-form-error');
 
+  function ajustarAlturaContenidoEdicion() {
+    editBody.style.height = 'auto';
+    editBody.style.height = editBody.scrollHeight + 'px';
+  }
+
   function mostrarToast(texto) {
     if (!toastEl) return;
     toastEl.textContent = texto;
@@ -498,8 +503,12 @@ function abrirEditar() {
   editTags.value  = p.category;
 
   showView('edit');
+  requestAnimationFrame(function () {
+    ajustarAlturaContenidoEdicion();
+  });
 }
 btnEdit.addEventListener('click', abrirEditar);
+editBody.addEventListener('input', ajustarAlturaContenidoEdicion);
 function setEditFormState(modo) {
   editFormIdle.classList.add('hidden');
   editFormLoading.classList.add('hidden');
