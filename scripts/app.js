@@ -84,6 +84,10 @@ function showView(nombre) {
     if (modo === 'empty') stateEmpty.classList.remove('hidden');
     if (modo === 'error') stateError.classList.remove('hidden');
     if (modo === 'success') stateSuccess.classList.remove('hidden');
+
+    if (viewHome) {
+      viewHome.setAttribute('aria-busy', modo === 'loading' ? 'true' : 'false');
+    }
   }
 
   function setDetailStates(modo) {

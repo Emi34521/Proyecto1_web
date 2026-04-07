@@ -116,6 +116,33 @@ button.btn-primary:hover,
   color: #666;
 }
 
+.posts-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.posts-loading__text {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.posts-loading__spinner {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 3px solid #e5e5e5;
+  border-top-color: #222;
+  border-radius: 50%;
+  animation: posts-spin 0.7s linear infinite;
+}
+
+@keyframes posts-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .hidden {
   display: none !important;
 }

@@ -28,12 +28,15 @@
       </div>
 
       <!-- UI States -->
-      <div id="state-idle" class="ui-state">
+      <div id="state-idle" class="ui-state hidden">
         <p>Bienvenido al Mini Blog.</p>
       </div>
 
-      <div id="state-loading" class="ui-state hidden">
-        <p>Cargando...</p>
+      <div id="state-loading" class="ui-state">
+        <div class="posts-loading" role="status" aria-live="polite">
+          <span class="posts-loading__spinner" aria-hidden="true"></span>
+          <p class="posts-loading__text">Cargando publicaciones…</p>
+        </div>
       </div>
 
       <div id="state-empty" class="ui-state hidden">
