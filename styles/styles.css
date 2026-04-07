@@ -162,7 +162,8 @@ button.btn-primary:hover,
   margin-right: auto;
 }
 
-.state-error #btn-retry {
+.state-error #btn-retry,
+.state-error #detail-error-back {
   margin-top: 0.25rem;
 }
 

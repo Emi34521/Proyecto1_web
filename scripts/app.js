@@ -27,6 +27,7 @@
   var detailContent = document.getElementById('detail-content');
   var detailBack = document.getElementById('detail-back');
   var detailErrorBack = document.getElementById('detail-error-back');
+  var detailErrorDetail = document.getElementById('detail-error-detail');
   var detailTitle = document.getElementById('detail-title');
   var detailBody = document.getElementById('detail-body');
   var detailMeta = document.getElementById('detail-meta');
@@ -100,6 +101,96 @@ function showView(nombre) {
     if (modo === 'loading') detailLoading.classList.remove('hidden');
     if (modo === 'error') detailError.classList.remove('hidden');
     if (modo === 'content') detailContent.classList.remove('hidden');
+
+    if (viewDetail) {
+      viewDetail.setAttribute('aria-busy', modo === 'loading' ? 'true' : 'false');
+    }
+  }
+
+  function setDetailErrorMessage(err) {
+    if (!detailErrorDetail) return;
+    if (err && err.name === 'AbortError') {
+      detailErrorDetail.textContent =
+        'El servidor no respondió a tiempo. Comprueba tu conexión e inténtalo de nuevo.';
+    } else if (err && err.name === 'HTTPError') {
+      detailErrorDetail.textContent =
+        'El servicio devolvió un error o la publicación no existe. Vuelve al inicio y prueba otra vez.';
+    } else if (err && err.name === 'InvalidResponse') {
+      detailErrorDetail.textContent =
+        'La respuesta no tiene el formato esperado. Inténtalo más tarde.';
+    } else {
+      detailErrorDetail.textContent =
+        'No se pudo conectar con el servidor o se perdió la conexión. Revisa tu red.';
+    }
+  }
+
+  function buscarProductoLocal(id) {
+    for (var j = 0; j < productos.length; j++) {
+      if (productos[j].id === id) {
+        return productos[j];
+      }
+    }
+    return null;
+  }
+
+  function upsertProductoEnLista(p) {
+    var idx = -1;
+    for (var i = 0; i < productos.length; i++) {
+      if (productos[i].id === p.id) {
+        idx = i;
+        break;
+      }
+    }
+    if (idx >= 0) {
+      productos[idx] = p;
+    } else {
+      productos.push(p);
+    }
+  }
+
+  function fetchProductDetail(id) {
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function () {
+      controller.abort();
+    }, LIST_FETCH_TIMEOUT_MS);
+
+    return fetch(API + '/' + encodeURIComponent(id), { signal: controller.signal })
+      .finally(function () {
+        clearTimeout(timeoutId);
+      })
+      .then(function (response) {
+        if (!response.ok) {
+          var errHttp = new Error('HTTP');
+          errHttp.name = 'HTTPError';
+          throw errHttp;
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        if (!data || typeof data !== 'object' || data.id == null) {
+          var errInvalid = new Error('Invalid');
+          errInvalid.name = 'InvalidResponse';
+          throw errInvalid;
+        }
+        return data;
+      });
+  }
+
+  function aplicarDetalleContenido(p) {
+    detailTitle.textContent = p.title;
+    detailBody.textContent = p.description;
+    detailMeta.textContent =
+      'Categoría: ' +
+      p.category +
+      ' · Precio: $' +
+      p.price +
+      (p.rating
+        ? ' · Valoración: ' + p.rating.rate + ' (' + p.rating.count + ')'
+        : '');
+    detailTags.innerHTML = '<span class="tag">' + escapar(p.category) + '</span>';
+
+    btnDelete.disabled = false;
+    btnDelete.textContent = 'Eliminar publicación';
   }
 
   function cortarTexto(texto, max) {
@@ -210,36 +301,24 @@ function showView(nombre) {
   function abrirDetalle(id) {
     idViendo = id;
     showView('detail');
+    setDetailStates('loading');
 
-    var p = null;
-    for (var j = 0; j < productos.length; j++) {
-      if (productos[j].id === id) {
-        p = productos[j];
-        break;
-      }
-    }
-
-    if (p === null) {
-      setDetailStates('error');
-      return;
-    }
-
-    detailTitle.textContent = p.title;
-    detailBody.textContent = p.description;
-    detailMeta.textContent =
-      'Categoría: ' +
-      p.category +
-      ' · Precio: $' +
-      p.price +
-      (p.rating
-        ? ' · Valoración: ' + p.rating.rate + ' (' + p.rating.count + ')'
-        : '');
-    detailTags.innerHTML = '<span class="tag">' + escapar(p.category) + '</span>';
-
-    btnDelete.disabled = false;
-    btnDelete.textContent = 'Eliminar publicación';
-
-    setDetailStates('content');
+    fetchProductDetail(id)
+      .then(function (p) {
+        upsertProductoEnLista(p);
+        aplicarDetalleContenido(p);
+        setDetailStates('content');
+      })
+      .catch(function (err) {
+        var local = buscarProductoLocal(id);
+        if (local) {
+          aplicarDetalleContenido(local);
+          setDetailStates('content');
+          return;
+        }
+        setDetailErrorMessage(err);
+        setDetailStates('error');
+      });
   }
 
   function eliminarPublicacion() {

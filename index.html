@@ -60,12 +60,16 @@
 
     <!-- Vista: detalle de publicación (producto) -->
     <section id="view-detail" class="hidden">
-      <div id="detail-loading" class="ui-state">
-        <p>Cargando publicación...</p>
+      <div id="detail-loading" class="ui-state hidden">
+        <div class="posts-loading" role="status" aria-live="polite">
+          <span class="posts-loading__spinner" aria-hidden="true"></span>
+          <p class="posts-loading__text">Cargando publicación…</p>
+        </div>
       </div>
-      <div id="detail-error" class="ui-state hidden">
-        <p>No se pudo cargar la publicación.</p>
-        <button type="button" id="detail-error-back">Volver al inicio</button>
+      <div id="detail-error" class="ui-state hidden state-error" role="alert" aria-live="assertive">
+        <p class="state-error__title">No se pudo cargar esta publicación.</p>
+        <p id="detail-error-detail" class="state-error__detail"></p>
+        <button type="button" id="detail-error-back" class="btn-primary">Volver al inicio</button>
       </div>
       <div id="detail-content" class="detail-container hidden">
         <button type="button" class="detail-back" id="detail-back">← Volver al listado</button>
