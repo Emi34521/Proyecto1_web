@@ -107,6 +107,26 @@ button.btn-primary:hover,
   border-radius: 4px;
   font-size: 0.85rem;
   background: #fff;
+  min-width: 0;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+}
+
+.filter-field--action {
+  justify-content: flex-end;
+}
+
+.filter-field__spacer {
+  display: block;
+  min-height: 1.15rem;
+}
+
+#btn-clear-filters {
+  align-self: flex-start;
 }
 
 /* ── Estados UI ── */
@@ -427,6 +447,15 @@ button.btn-primary:hover,
 
   #search-area {
     flex-direction: column;
+  }
+
+  #filters-area {
+    flex-direction: column;
+  }
+
+  .filter-field {
+    width: 100%;
+    max-width: 100%;
   }
 }
 .edit-actions {

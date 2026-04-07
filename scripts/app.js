@@ -6,6 +6,7 @@
   var LIST_FETCH_TIMEOUT_MS = 15000;
 
   var productos = [];
+  var listaMostrada = [];
   var paginaActual = 1;
   var idViendo = null;
 
@@ -21,6 +22,11 @@
   var postsList = document.getElementById('posts-list');
   var paginationEl = document.getElementById('pagination');
   var homeErrorDetail = document.getElementById('home-error-detail');
+  var searchInput = document.getElementById('search-input');
+  var btnSearch = document.getElementById('btn-search');
+  var filterCategory = document.getElementById('filter-category');
+  var filterPriceMax = document.getElementById('filter-price-max');
+  var btnClearFilters = document.getElementById('btn-clear-filters');
 
   var detailLoading = document.getElementById('detail-loading');
   var detailError = document.getElementById('detail-error');
@@ -210,8 +216,108 @@ function showView(nombre) {
     return d.innerHTML;
   }
 
+  function limpiarCamposBusqueda() {
+    if (searchInput) searchInput.value = '';
+    if (filterCategory) filterCategory.value = '';
+    if (filterPriceMax) filterPriceMax.value = '';
+  }
+
+  function llenarSelectCategorias() {
+    if (!filterCategory) return;
+    while (filterCategory.options.length > 1) {
+      filterCategory.remove(1);
+    }
+    var yaPuestas = {};
+    var listaCats = [];
+    for (var c = 0; c < productos.length; c++) {
+      var nom = productos[c].category;
+      if (!nom || yaPuestas[nom]) continue;
+      yaPuestas[nom] = true;
+      listaCats.push(nom);
+    }
+    listaCats.sort();
+    for (var d = 0; d < listaCats.length; d++) {
+      var op = document.createElement('option');
+      op.value = listaCats[d];
+      op.textContent = listaCats[d];
+      filterCategory.appendChild(op);
+    }
+  }
+
+  function aplicarBusquedaYFiltros() {
+    listaMostrada = [];
+
+    var texto = '';
+    if (searchInput) {
+      texto = searchInput.value.trim().toLowerCase();
+    }
+
+    var categoriaElegida = '';
+    if (filterCategory) {
+      categoriaElegida = filterCategory.value;
+    }
+
+    var usarPrecioMax = false;
+    var precioMax = 0;
+    if (filterPriceMax && filterPriceMax.value.trim() !== '') {
+      var n = parseFloat(filterPriceMax.value);
+      if (!isNaN(n)) {
+        usarPrecioMax = true;
+        precioMax = n;
+      }
+    }
+
+    for (var i = 0; i < productos.length; i++) {
+      var p = productos[i];
+
+      if (categoriaElegida !== '' && p.category !== categoriaElegida) {
+        continue;
+      }
+
+      if (usarPrecioMax) {
+        var precio = Number(p.price);
+        if (isNaN(precio)) precio = 0;
+        if (precio > precioMax) {
+          continue;
+        }
+      }
+
+      if (texto !== '') {
+        var tit = (p.title || '').toLowerCase();
+        var desc = (p.description || '').toLowerCase();
+        var cat = (p.category || '').toLowerCase();
+        var coincideTitulo = tit.indexOf(texto) !== -1;
+        var coincideDesc = desc.indexOf(texto) !== -1;
+        var coincideCat = cat.indexOf(texto) !== -1;
+        if (!coincideTitulo && !coincideDesc && !coincideCat) {
+          continue;
+        }
+      }
+
+      listaMostrada.push(p);
+    }
+
+    paginaActual = 1;
+  }
+
+  function mostrarResultadosBusqueda() {
+    aplicarBusquedaYFiltros();
+
+    if (listaMostrada.length === 0) {
+      setHomeStates('empty');
+      postsList.innerHTML = '';
+      paginationEl.classList.add('hidden');
+      paginationEl.innerHTML = '';
+      return;
+    }
+
+    setHomeStates('success');
+    pintarLista();
+    pintarPaginacion();
+  }
+
   function pintarPaginacion() {
-    var total = productos.length;
+    var total = listaMostrada.length;
     if (total === 0) {
       paginationEl.classList.add('hidden');
       paginationEl.innerHTML = '';
@@ -261,7 +367,7 @@ function showView(nombre) {
 
     var inicio = (paginaActual - 1) * POR_PAGINA;
     var fin = inicio + POR_PAGINA;
-    var items = productos.slice(inicio, fin);
+    var items = listaMostrada.slice(inicio, fin);
 
     for (var i = 0; i < items.length; i++) {
       var p = items[i];
@@ -358,18 +464,12 @@ function showView(nombre) {
         showView('home');
 
         if (productos.length === 0) {
+          listaMostrada = [];
           setHomeStates('empty');
           paginationEl.classList.add('hidden');
           paginationEl.innerHTML = '';
         } else {
-          var totalPaginas = Math.ceil(productos.length / POR_PAGINA);
-          if (totalPaginas < 1) totalPaginas = 1;
-          if (paginaActual > totalPaginas) {
-            paginaActual = totalPaginas;
-          }
-          setHomeStates('success');
-          pintarLista();
-          pintarPaginacion();
+          mostrarResultadosBusqueda();
         }
       })
       .catch(function () {
@@ -466,6 +566,7 @@ function enviarPost() {
         image:       '',
         rating:      { rate: 0, count: 0 }
       });
+      llenarSelectCategorias();
       inputTitle.value = '';
       inputBody.value  = '';
       inputTags.value  = '';
@@ -481,10 +582,7 @@ document.getElementById('btn-back').addEventListener('click', function () {
   setFormState('idle');
   showView('home');
   if (productos.length > 0) {
-    paginaActual = 1;
-    setHomeStates('success');
-    pintarLista();
-    pintarPaginacion();
+    mostrarResultadosBusqueda();
   }
 });
 
@@ -578,10 +676,7 @@ document.getElementById('btn-edit-back').addEventListener('click', function () {
   setEditFormState('idle');
   showView('home');
   if (productos.length > 0) {
-    paginaActual = 1;
-    setHomeStates('success');
-    pintarLista();
-    pintarPaginacion();
+    mostrarResultadosBusqueda();
   }
 });
 
@@ -640,11 +735,14 @@ document.getElementById('btn-edit-retry').addEventListener('click', function () 
       .then(function (data) {
         if (data.length === 0) {
           productos = [];
+          listaMostrada = [];
           setHomeStates('empty');
           return;
         }
         productos = data;
-        paginaActual = 1;
+        limpiarCamposBusqueda();
+        llenarSelectCategorias();
+        aplicarBusquedaYFiltros();
         setHomeStates('success');
         pintarLista();
         pintarPaginacion();
@@ -664,6 +762,38 @@ document.getElementById('btn-edit-retry').addEventListener('click', function () 
   });
 
   document.getElementById('btn-retry').addEventListener('click', loadProducts);
+
+  if (btnSearch) {
+    btnSearch.addEventListener('click', function () {
+      if (productos.length === 0) {
+        mostrarToast('Aún no hay publicaciones cargadas.');
+        return;
+      }
+      mostrarResultadosBusqueda();
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') {
+        if (productos.length === 0) {
+          mostrarToast('Aún no hay publicaciones cargadas.');
+          return;
+        }
+        mostrarResultadosBusqueda();
+      }
+    });
+  }
+
+  if (btnClearFilters) {
+    btnClearFilters.addEventListener('click', function () {
+      limpiarCamposBusqueda();
+      if (productos.length === 0) {
+        return;
+      }
+      mostrarResultadosBusqueda();
+    });
+  }
 
   detailBack.addEventListener('click', function () {
     showView('home');

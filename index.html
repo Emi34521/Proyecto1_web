@@ -21,10 +21,27 @@
     <!-- Vista: Home / listado de posts -->
     <section id="view-home">
 
-      <!-- Búsqueda -->
+      <!-- Búsqueda y filtros -->
       <div id="search-area">
-        <input type="text" id="search-input" placeholder="Buscar posts..." />
-        <button id="btn-search">Buscar</button>
+        <input type="text" id="search-input" placeholder="Buscar por título, texto o categoría..." />
+        <button type="button" id="btn-search">Buscar</button>
+      </div>
+
+      <div id="filters-area">
+        <div class="filter-field">
+          <label for="filter-category">Categoría</label>
+          <select id="filter-category">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label for="filter-price-max">Precio máximo ($)</label>
+          <input type="number" id="filter-price-max" min="0" step="0.01" placeholder="Sin límite" />
+        </div>
+        <div class="filter-field filter-field--action">
+          <span class="filter-field__spacer" aria-hidden="true"></span>
+          <button type="button" id="btn-clear-filters">Quitar filtros</button>
+        </div>
       </div>
 
       <!-- UI States -->
