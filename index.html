@@ -43,9 +43,10 @@
         <p>No se encontraron posts.</p>
       </div>
 
-      <div id="state-error" class="ui-state hidden">
-        <p>Ocurrió un error al cargar los posts.</p>
-        <button id="btn-retry">Reintentar</button>
+      <div id="state-error" class="ui-state hidden state-error" role="alert" aria-live="assertive">
+        <p class="state-error__title">No se pudieron cargar las publicaciones.</p>
+        <p id="home-error-detail" class="state-error__detail"></p>
+        <button type="button" id="btn-retry" class="btn-primary">Reintentar</button>
       </div>
 
       <div id="state-success" class="ui-state hidden">

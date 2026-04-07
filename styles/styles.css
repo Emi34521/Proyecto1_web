@@ -147,6 +147,25 @@ button.btn-primary:hover,
   display: none !important;
 }
 
+.state-error__title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.state-error__detail {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1.25rem;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.state-error #btn-retry {
+  margin-top: 0.25rem;
+}
+
 /* ── Grid de posts ── */
 #posts-list {
   display: grid;

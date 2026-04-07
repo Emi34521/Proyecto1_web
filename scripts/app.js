@@ -3,6 +3,7 @@
 
   var API = 'https://fakestoreapi.com/products';
   var POR_PAGINA = 6;
+  var LIST_FETCH_TIMEOUT_MS = 15000;
 
   var productos = [];
   var paginaActual = 1;
@@ -19,6 +20,7 @@
   var stateSuccess = document.getElementById('state-success');
   var postsList = document.getElementById('posts-list');
   var paginationEl = document.getElementById('pagination');
+  var homeErrorDetail = document.getElementById('home-error-detail');
 
   var detailLoading = document.getElementById('detail-loading');
   var detailError = document.getElementById('detail-error');
@@ -499,17 +501,56 @@ document.getElementById('btn-edit-retry').addEventListener('click', function () 
   setEditFormState('idle');
 });
 
-  function loadProducts() {
-    setHomeStates('loading');
-    fetch(API)
+  function fetchProductList() {
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function () {
+      controller.abort();
+    }, LIST_FETCH_TIMEOUT_MS);
+
+    return fetch(API, { signal: controller.signal })
+      .finally(function () {
+        clearTimeout(timeoutId);
+      })
       .then(function (response) {
         if (!response.ok) {
-          throw new Error('error');
+          var errHttp = new Error('HTTP');
+          errHttp.name = 'HTTPError';
+          throw errHttp;
         }
         return response.json();
       })
       .then(function (data) {
-        if (!Array.isArray(data) || data.length === 0) {
+        if (!Array.isArray(data)) {
+          var errInvalid = new Error('Invalid');
+          errInvalid.name = 'InvalidResponse';
+          throw errInvalid;
+        }
+        return data;
+      });
+  }
+
+  function setHomeListErrorMessage(err) {
+    if (!homeErrorDetail) return;
+    if (err && err.name === 'AbortError') {
+      homeErrorDetail.textContent =
+        'El servidor no respondió a tiempo. Comprueba tu conexión e inténtalo de nuevo.';
+    } else if (err && err.name === 'HTTPError') {
+      homeErrorDetail.textContent =
+        'El servicio devolvió un error. Puede ser un fallo temporal; prueba en unos minutos.';
+    } else if (err && err.name === 'InvalidResponse') {
+      homeErrorDetail.textContent =
+        'La respuesta no tiene el formato esperado. Inténtalo de nuevo más tarde.';
+    } else {
+      homeErrorDetail.textContent =
+        'No se pudo conectar con el servidor o se perdió la conexión. Revisa tu red e inténtalo de nuevo.';
+    }
+  }
+
+  function loadProducts() {
+    setHomeStates('loading');
+    fetchProductList()
+      .then(function (data) {
+        if (data.length === 0) {
           productos = [];
           setHomeStates('empty');
           return;
@@ -520,7 +561,8 @@ document.getElementById('btn-edit-retry').addEventListener('click', function () 
         pintarLista();
         pintarPaginacion();
       })
-      .catch(function () {
+      .catch(function (err) {
+        setHomeListErrorMessage(err);
         setHomeStates('error');
       });
   }
